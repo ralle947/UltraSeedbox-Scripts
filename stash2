@@ -8,7 +8,7 @@ then
 fi
 
 #Install stast
-git clone https://github.com/stashapp/stash.git ~/www/stash  
+git clone https://github.com/stashapp/stash/releases/latest/download/stash-linux ~/www/stash  
 
 #Install nginx conf
 echo 'location /stash/api/v2 {
