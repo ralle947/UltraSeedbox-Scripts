@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# stash installer by Xan#7777
+# Installs stash Locally in USB Slot
+
+printf "\033[0;31mDisclaimer: This installer is unofficial and USB staff will not support any issues with it\033[0m\n"
+read -p "Type confirm if you wish to continue: " input
+if [ ! "$input" = "confirm" ]
+then
+     exit
+fi
+
+# Create Folders
+mkdir -p "$HOME"/bin
+mkdir -p "$HOME"/.stash-tmp
+
+# stash Extract
+cd "$HOME"/.stash-tmp || exit
+wget https://github.com/stashapp/stash/releases/download/v0.14.0/stash-linux-arm64v8
+
+# Unused Port Picker
+app-ports show
+
+echo "Pick any application from this list that you're not currently using."
+echo "We'll be using this port for Stash."
+echo "For example, you chose SickRage so type in 'sickrage'"
+echo "Type in the application below."
+
+read -r appname
+proper_app_name=$(app-ports show | grep -i "$appname" | cut -c 7-)
+port=$(app-ports show | grep -i "$appname" | cut -b -5)
+
+echo "Are you sure you want to use $proper_app_name's port? type 'confirm' to proceed."
+read -r input
+if [ ! "$input" = "confirm" ]
+then
+    exit
+fi
+
+# Generate config
+timeout 10  "$HOME"/bin/stash -port="$port"
+
+# Set tmp
+sed -i "s|/tmp/stash|/tmp/$USER/stash|g" "$HOME"/.stash/settings.json
+
+# systemd service
+export XDG_RUNTIME_DIR=/run/user/"$UID"
+echo "[Unit]
+Description=Stash
+[Service]
+Type=simple
+ExecStart=$HOME/bin/stash -port=$port
+[Install]
+WantedBy=default.target" > "$HOME/.config/systemd/user/stash.service"
+
+# Start Services
+systemctl --user daemon-reload
+systemctl --user start stash.service
+systemctl --user enable stash.service
+
+echo ""
+echo ""
+echo "Access Stash's Web Interface via http://$HOSTNAME.usbx.me:$port/web"
+
+# Cleanup
+rm -rfv "$HOME"/.stash-tmp
+exit
