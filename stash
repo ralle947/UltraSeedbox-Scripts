@@ -17,7 +17,7 @@ mkdir -p "$HOME"/.stash-tmp
 # stash Extract
 cd "$HOME"/.stash-tmp || exit
 wget https://github.com/stashapp/stash/releases/download/v0.14.0/stash-linux-arm64v8
-mv stash-linux-arm64v8 -d "$HOME"/bin/
+unzip stash-linux-arm64v8 -d "$HOME"/bin/
 
 # Unused Port Picker
 app-ports show
